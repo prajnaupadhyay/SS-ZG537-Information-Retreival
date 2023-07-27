@@ -25,36 +25,47 @@ def readCorpus(dir):
 def sort(dir):
     f = open(dir + "/intermediate/output.tsv")
     o = open(dir + "/intermediate/output_sorted.tsv", "w")
+
     # initialize an empty list of pairs of
     # tokens and their doc_ids
     pairs = []
+
     for line in f:
         line = line[:-1]
         split_line = line.split("\t")
-        y = (split_line[0], split_line[1])
-        pairs.append(y)
+        pair = (split_line[0], split_line[1])
+        pairs.append(pair)
+
+    # sort (token, doc_id) pairs by token first and then doc_id
     sorted_pairs = sorted(pairs, key=lambda x: (x[0], x[1]))
+
+    # write sorted pairs to file
     for sp in sorted_pairs:
         o.write(sp[0] + "\t" + sp[1] + "\n")
     o.close()
 
 
 def constructPostings(dir):
-    # read the file containing the stored pairs
-    f = open(dir + "/intermediate/output_sorted.tsv")
-
-    sorted_pairs = []
+    # open file to write postings
+    o1 = open(dir + "/intermediate/postings.tsv", "w")
 
     postings = {}  # initialize our dictionary of terms
     doc_freq = {}  # document frequency for each term
 
-    o1 = open(dir + "/intermediate/postings.tsv","w")
+    # read the file containing the sorted pairs
+    f = open(dir + "/intermediate/output_sorted.tsv")
 
+    # initialize sorted pairs
+    sorted_pairs = []
+
+    # read sorted pairs
     for line in f:
         line = line[:-1]
         split_line = line.split("\t")
         pairs = (split_line[0], split_line[1])
         sorted_pairs.append(pairs)
+
+    # construct postings from sorted pairs
     for pairs in sorted_pairs:
         if pairs[0] not in postings:
             postings[pairs[0]] = []
@@ -63,9 +74,14 @@ def constructPostings(dir):
             len_postings = len(postings[pairs[0]])
             if len_postings >= 1:
                 # check for duplicates
+                # assuming the doc_ids are sorted
+                # the same doc_ids will appear
+                # one after another and detected by
+                # checking the last element of the postings
                 if pairs[1] != postings[pairs[0]][len_postings - 1]:
                     postings[pairs[0]].append(pairs[1])
 
+    # update doc_freq which is the size of postings list
     for token in postings:
         doc_freq[token] = len(postings[token])
 
@@ -85,7 +101,14 @@ def index(dir):
     # creates an intermediary file
     # containing token and doc_id pairs.
     readCorpus(dir)
+
+    # sorts (token, doc_id) pairs
+    # by token first and then doc_id
     sort(dir)
+
+    # converts (token, doc_id) pairs
+    # into a dictionary of tokens
+    # and an adjacency list of doc_id
     constructPostings(dir)
 
 
