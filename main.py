@@ -7,6 +7,10 @@ import os
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
+# reads the corpus and
+# creates an intermediary file
+# containing token and doc_id pairs.
+
 def readCorpus(dir):
     doc_id = 1
     o = open(dir + "/intermediate/output.tsv", "w")
@@ -22,6 +26,8 @@ def readCorpus(dir):
     o.close()
 
 
+# sorts (token, doc_id) pairs
+# by token first and then doc_id
 def sort(dir):
     f = open(dir + "/intermediate/output.tsv")
     o = open(dir + "/intermediate/output_sorted.tsv", "w")
@@ -44,7 +50,9 @@ def sort(dir):
         o.write(sp[0] + "\t" + sp[1] + "\n")
     o.close()
 
-
+# converts (token, doc_id) pairs
+# into a dictionary of tokens
+# and an adjacency list of doc_id
 def constructPostings(dir):
     # open file to write postings
     o1 = open(dir + "/intermediate/postings.tsv", "w")
