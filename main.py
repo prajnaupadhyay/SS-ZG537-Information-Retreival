@@ -48,6 +48,8 @@ def constructPostings(dir):
     postings = {}  # initialize our dictionary of terms
     doc_freq = {}  # document frequency for each term
 
+    o1 = open(dir + "/intermediate/postings.tsv","w")
+
     for line in f:
         line = line[:-1]
         split_line = line.split("\t")
@@ -69,6 +71,12 @@ def constructPostings(dir):
 
     print(postings)
     print(doc_freq)
+
+    # write postings and document frequency to file
+
+    for token in postings:
+        o1.write(token+"\t"+str(doc_freq[token])+"\t"+str(postings[token])+"\n")
+    o1.close()
 
 
 # starting the indexing process
