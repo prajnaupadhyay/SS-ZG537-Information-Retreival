@@ -50,6 +50,7 @@ def sort(dir):
         o.write(sp[0] + "\t" + sp[1] + "\n")
     o.close()
 
+
 # converts (token, doc_id) pairs
 # into a dictionary of tokens
 # and an adjacency list of doc_id
@@ -93,13 +94,16 @@ def constructPostings(dir):
     for token in postings:
         doc_freq[token] = len(postings[token])
 
-    print(postings)
-    print(doc_freq)
+    print("postings: " + str(postings))
+    print("doc freq: " + str(doc_freq))
 
     # write postings and document frequency to file
 
     for token in postings:
-        o1.write(token+"\t"+str(doc_freq[token])+"\t"+str(postings[token])+"\n")
+        o1.write(token + "\t" + str(doc_freq[token]))
+        for l in postings[token]:
+            o1.write("\t" + l)
+        o1.write("\n")
     o1.close()
 
 
@@ -120,8 +124,70 @@ def index(dir):
     constructPostings(dir)
 
 
+def load_index_in_memory(dir):
+    f = open(dir + "intermediate/postings.tsv")
+    postings = {}
+    doc_freq = {}
+
+    for line in f:
+        splitline = line.split("\t")
+
+        token = splitline[0]
+        freq = int(splitline[1])
+
+        doc_freq[token] = freq
+
+        item_list = []
+
+        for item in range(2, len(splitline)):
+            item_list.append(splitline[item].strip())
+        postings[token] = item_list
+
+    return postings, doc_freq
+
+
+def intersection(l1, l2):
+    count1 = 0
+    count2 = 0
+    intersection_list = []
+
+    while count1 < len(l1) and count2 < len(l2):
+        if l1[count1] == l2[count2]:
+            intersection_list.append(l1[count1])
+            count1 = count1 + 1
+            count2 = count2 + 1
+        elif l1[count1] < l2[count2]:
+            count1 = count1 + 1
+        elif l1[count1] > l2[count2]:
+            count2 = count2 + 1
+
+    return intersection_list
+
+
+def and_query(query_terms):
+    postings, doc_freq = load_index_in_memory('corpus/')
+
+    postings_in_mem = {}
+
+    for q in query_terms:
+        postings_in_mem[q] = postings[q]
+
+    sorted_tokens = sorted(postings_in_mem.items(), key=lambda x: x[1])
+
+    # result = postings[min(doc_freq, key = doc_freq.get)]
+    result = postings[sorted_tokens[0][0]]
+
+    for i in range(1, len(postings_in_mem)):
+        result = intersection(result, postings_in_mem[sorted_tokens[i][0]])
+        if len(result) == 0:
+            return result
+
+    return result
+
+
 # Code starts here
 if __name__ == '__main__':
     index('corpus/')
+    print("\n\nResult of 'stanford and university' is: "+str(and_query(['stanford', 'university'])))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
