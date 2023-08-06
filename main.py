@@ -165,20 +165,39 @@ def intersection(l1, l2):
 
 
 def and_query(query_terms):
+    # load postings in memory
     postings, doc_freq = load_index_in_memory('corpus/')
 
-    postings_in_mem = {}
+
+    # postings for only the query terms
+    postings_for_keywords = {}
+    doc_freq_for_keywords = {}
 
     for q in query_terms:
-        postings_in_mem[q] = postings[q]
+        postings_for_keywords[q] = postings[q]
 
-    sorted_tokens = sorted(postings_in_mem.items(), key=lambda x: x[1])
+    # store doc frequency for query token in
+    # dictionary
 
-    # result = postings[min(doc_freq, key = doc_freq.get)]
-    result = postings[sorted_tokens[0][0]]
+    for q in query_terms:
+        doc_freq_for_keywords[q] = doc_freq[q]
 
-    for i in range(1, len(postings_in_mem)):
-        result = intersection(result, postings_in_mem[sorted_tokens[i][0]])
+    # sort tokens in increasing order of their
+    # frequencies
+
+    sorted_tokens = sorted(doc_freq_for_keywords.items(), key=lambda x: x[1])
+
+    # initialize result to postings list of the
+    # token with minimum doc frequency
+
+    result = postings_for_keywords[sorted_tokens[0][0]]
+
+    # iterate over the remaining postings list and
+    # intersect them with result, and updating it
+    # in every step
+
+    for i in range(1, len(postings_for_keywords)):
+        result = intersection(result, postings_for_keywords[sorted_tokens[i][0]])
         if len(result) == 0:
             return result
 
@@ -188,6 +207,6 @@ def and_query(query_terms):
 # Code starts here
 if __name__ == '__main__':
     index('corpus/')
-    print("\n\nResult of 'stanford and university' is: "+str(and_query(['stanford', 'university'])))
+    print("\n\nResult of 'stanford and university and california' is: "+str(and_query(['stanford', 'university', 'california'])))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
