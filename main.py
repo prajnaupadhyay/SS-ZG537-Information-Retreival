@@ -11,7 +11,7 @@ import os
 # creates an intermediary file
 # containing token and doc_id pairs.
 
-def readCorpus(dir):
+def read_corpus(dir):
     doc_id = 1
     o = open(dir + "/intermediate/output.tsv", "w")
     for f in os.listdir(dir):
@@ -54,7 +54,7 @@ def sort(dir):
 # converts (token, doc_id) pairs
 # into a dictionary of tokens
 # and an adjacency list of doc_id
-def constructPostings(dir):
+def construct_postings(dir):
     # open file to write postings
     o1 = open(dir + "/intermediate/postings.tsv", "w")
 
@@ -112,7 +112,7 @@ def index(dir):
     # reads the corpus and
     # creates an intermediary file
     # containing token and doc_id pairs.
-    readCorpus(dir)
+    read_corpus(dir)
 
     # sorts (token, doc_id) pairs
     # by token first and then doc_id
@@ -121,7 +121,7 @@ def index(dir):
     # converts (token, doc_id) pairs
     # into a dictionary of tokens
     # and an adjacency list of doc_id
-    constructPostings(dir)
+    construct_postings(dir)
 
 
 def load_index_in_memory(dir):
